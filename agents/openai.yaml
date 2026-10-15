@@ -1,0 +1,5 @@
+interface:
+  display_name: "App Launch Playbook"
+  short_description: "从立项、开发、备案到上架的可复用 App 制作流程"
+  brand_color: "#10B981"
+  default_prompt: "Use $app-launch-playbook to help me take a new app from idea to store submission."

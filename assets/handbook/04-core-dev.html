@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>04 核心功能开发 · APP_NAME App 制作经验手册</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html">APP_NAME App 制作经验手册</a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="01-product.html">立项</a>
+        <a href="02-environment.html">环境</a>
+        <a href="03-design.html">设计</a>
+        <a href="04-core-dev.html">开发</a>
+        <a href="05-special.html">卡片与提醒</a>
+        <a href="06-testing.html">测试</a>
+        <a href="07-store.html">上架素材</a>
+        <a href="08-filing.html">资质备案</a>
+        <a href="09-pitfalls.html">踩坑</a>
+        <a href="10-launch.html">发布</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <p class="breadcrumb"><a href="index.html">首页</a> / 04 核心功能开发</p>
+    <section class="hero">
+      <div>
+        <p class="kicker">Stage 04 · Core Development</p>
+        <h1>把核心逻辑做成可单测的“纯内核”</h1>
+        <p class="lead">
+          APP_NAME的架构只有一句话：pages 负责渲染，widget 负责卡片 UI，core 负责与 UI 无关的计算和存储。
+          核心排班逻辑被日历、统计、卡片、提醒四条链路复用，所以必须能单测。
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>一、工程结构</h2>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><strong>真实目录结构</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>entry/src/main/ets/
+  pages/        Main / ShiftCal / Config / Cycle / CycleEdit / Stats / About / Privacy / Permissions
+  core/shift/   ShiftModel / ConfigStore / AppMirror / CycleTemplates / ShiftStats
+  core/         reminder / holiday / privacy / backup / theme
+  widget/pages/ ShiftCard.ets
+entry/src/ohosTest/ets/test/   ShiftModel.test.ets</pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>二、排班内核</h2>
+      </div>
+      <div class="card">
+        <p><strong>一条规则</strong> = 起始日期 + 循环序列 + 范围（循环 N 次 / 共 N 天 / 一直循环）。</p>
+        <p><strong>解析优先级</strong>：手动覆盖最高；命中某条规则时，用“起始日期不晚于它的最后一条规则”，再套该规则自己的范围；起点之前、范围之外留白。</p>
+        <p><strong>取值只有一条路径</strong>：segIndexAt() 找规则 → segKindAt() 套范围 → resolvedKind() 让手动修改盖过它。</p>
+      </div>
+      <div class="banner green">
+        <strong>改内核前先跑测试</strong>
+        <p>正确顺序是：先 run-tests.ps1 → 再改内核 → 再跑测试 → 最后上模拟器截图。别跳步。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>三、持久化的关键认知</h2>
+      </div>
+      <div class="grid cards-2">
+        <div class="card">
+          <h3>preferences 是真相</h3>
+          <p>真正落盘的是 ArkData preferences。所有“要记住”的东西，preferences 必须有副本。</p>
+        </div>
+        <div class="card">
+          <h3>AppStorage 只是镜像</h3>
+          <p>AppStorage / PersistentStorage 是给 UI 用的镜像，进程被杀可能丢，不能当唯一存储。</p>
+        </div>
+        <div class="card">
+          <h3>先注册再读写</h3>
+          <p>PersistentStorage 的键必须先 persistProp 注册，否则冷启动读到空值，可能把真实数据覆盖。</p>
+        </div>
+        <div class="card">
+          <h3>启动时补水，不写盘</h3>
+          <p>镜像为空但磁盘有数据时，用磁盘补镜像，绝不反向覆盖。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>四、核心功能清单</h2>
+      </div>
+      <div class="check-block">
+        <div class="check-head">
+          <span>核心功能开发</span>
+          <button class="ghost" data-clear-list="core-dev">清空本清单</button>
+        </div>
+        <ul class="checklist" data-checklist="core-dev">
+          <li><label><input type="checkbox" data-check="types"><span>自定义班次类型：名称 / 颜色 / 样式 / 时间 / 是否计工时</span></label></li>
+          <li><label><input type="checkbox" data-check="templates"><span>常用班制模板：白白夜夜休休、两班倒、三班倒等</span></label></li>
+          <li><label><input type="checkbox" data-check="segments"><span>排班规则列表：新增 / 编辑 / 删除 / 排序 / 范围</span></label></li>
+          <li><label><input type="checkbox" data-check="override"><span>手动改班：选中日期直接改 / 清空 / 还原</span></label></li>
+          <li><label><input type="checkbox" data-check="calendar"><span>月历视图：班次 tag + 节假日角标 + 左右滑动切月</span></label></li>
+          <li><label><input type="checkbox" data-check="stats"><span>月 / 年统计：工时、班次、连续、休息、夜班、节假日出勤</span></label></li>
+          <li><label><input type="checkbox" data-check="backup"><span>备份导出 / 导入恢复，格式带版本号</span></label></li>
+          <li><label><input type="checkbox" data-check="privacy"><span>首启隐私弹窗 + 我的页入口 + 权限说明页</span></label></li>
+          <li><label><input type="checkbox" data-check="theme"><span>浅色 / 深色两套皮肤</span></label></li>
+          <li><label><input type="checkbox" data-check="clear"><span>清除全部数据二次确认，并撤销已发布提醒</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>五、Vibe Coding 提示词</h2>
+        <p>这里按开发顺序给出可复制的提示词，重点是“先给上下文，再要求实现，并要求补测试”。</p>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>1. 生成排班内核模型</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>我要在 HarmonyOS NEXT 的 ArkTS 工程里实现排班内核，代码放在 entry/src/main/ets/core/shift/ShiftModel.ets。
+数据模型：
+- ShiftType：name, short, color, style(实心/描边), start, end, rest, remind, countsAsWork
+- CycleSeg：id, startDay(起始日), sequence(number[]), spanMode(循环N次/共N天/一直循环), spanCount
+- Override：day -> typeIndex 或空
+规则：
+1. 规则按起始日期升序，同一天起始只保留后写的一条
+2. 某天归属“起始日期不晚于它的最后一条规则”，再套该规则自己的范围
+3. 规则起点之前、范围之外留白
+4. 手动覆盖永远优先
+要求：
+1. 提供 segIndexAt / segKindAt / resolvedKind / spanDaysOf 四个核心函数
+2. 所有逻辑放在 core，不依赖 UI
+3. 同时写 Hypium 单元测试，覆盖边界：起始日当天、最后一天、第二天、跨天班次、老数据迁移</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>2. 生成持久化 ConfigStore</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为APP_NAME实现 ConfigStore.ets，负责本地持久化和 UI 镜像同步。
+要求：
+1. 数据存 ArkData preferences，键用 shift_store
+2. 只写 AppStorage 不算落盘，所有“要记住”的值都要 load/save 成对
+3. PersistentStorage 的键读写前先 persistProp 注册
+4. 启动时 hydrateMirrorFromDisk：镜像为空但磁盘有数据时，用磁盘补镜像，绝不反向写盘
+5. 保存时刷新桌面卡片 formProvider.updateForm
+请同时处理：班次类型 types、规则 segments、手动覆盖 overrides、手动节假日标记 holidayMarks、深色 dark、提醒开关 reminderOn。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>3. 生成四个 tab 的页面骨架</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请基于APP_NAME的设计系统实现四个 tab 的页面骨架：
+日历 / 班次 / 统计 / 我的。
+要求：
+1. ArkUI Stage 模型，入口 Main.ets 使用 Tabs
+2. 先只做布局和导航，不做业务
+3. 使用 @State / @StorageLink，不读模块级可变数据
+4. 所有装饰性图标加 enableAnalyzer(false).draggable(false)
+5. 每个页面统一安全区处理
+请把设计 token 放在 core/theme，页面不写魔法数字。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>4. 循环班次升级为规则列表</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>把APP_NAME原来的“单条循环班次”升级为“排班规则列表”。
+需求：
+1. 新增 Cycle.ets 规则列表页：显示条数、彩色序列、简称、时间范围、今天归属、下一条
+2. 新增 CycleEdit.ets 编辑器：起始日、循环序列、范围三档、预览、底部删除
+3. 老数据自动迁移成第一条规则
+4. 备份格式增加 segments，但老备份仍可导入
+5. 规则按起始日倒序展示，同一天起始只保留后写的一条
+请先扩展 ShiftModel，再写页面，最后补单测。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>5. 工时统计</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请实现APP_NAME统计页 Stats.ets 和 ShiftStats.ets。
+需要：
+1. 本月 / 本年两档
+2. 每日工时、每月工时图表
+3. 按班次类型统计
+4. 当前连续、最长连续、休息天数、夜间班次数
+5. 节假日出勤天数
+6. 跨天班次（如 20:00-08:00）的时长和状态计算正确
+统计逻辑放 core，页面只渲染；图表动画按设计 token 400-500ms 错峰。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>6. 备份与恢复</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为APP_NAME实现备份导出和导入恢复。
+要求：
+1. 导出 JSON，格式 {app:"APP_SLUG", version:1, types, segments, overrides, holidayMarks, dark}
+2. 使用系统文件选择器，默认文件名“APP_NAME备份_日期.json”
+3. 导入前二次确认，并提示会覆盖本机数据
+4. 备份版本高于当前版本时拒绝导入
+5. 导入成功后按导入的排班强制同步一次日历提醒
+请把 BackupService 放 core/backup，页面只调用。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>7. 首启隐私弹窗与合规</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为APP_NAME实现首次启动隐私告知流程。
+要求：
+1. 同意之前不联网、不申请任何系统权限
+2. 弹窗里有“查看隐私政策”和“暂不同意”
+3. 暂不同意二次确认后可退出应用
+4. 隐私政策全文用应用内原生页面，不依赖外部链接
+5. 政策版本号 PRIVACY_VERSION，改版 +1 后老用户重新收到弹窗
+6. “我的”页展示：版本号、主体、联系方式、备案号（未填则不显示）、隐私政策、权限说明、清除全部数据</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><a href="index.html">返回首页</a> · 上一阶段：<a href="03-design.html">03 设计</a> · 下一阶段：<a href="05-special.html">05 卡片与提醒</a></p>
+    </footer>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>

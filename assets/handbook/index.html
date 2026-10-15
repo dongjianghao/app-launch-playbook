@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>APP_NAME App 制作经验手册</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html">APP_NAME App 制作经验手册</a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="01-product.html">立项</a>
+        <a href="02-environment.html">环境</a>
+        <a href="03-design.html">设计</a>
+        <a href="04-core-dev.html">开发</a>
+        <a href="05-special.html">卡片与提醒</a>
+        <a href="06-testing.html">测试</a>
+        <a href="07-store.html">上架素材</a>
+        <a href="08-filing.html">资质备案</a>
+        <a href="09-pitfalls.html">踩坑</a>
+        <a href="10-launch.html">发布</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <p class="kicker">Reusable Playbook · HarmonyOS NEXT · Vibe Coding</p>
+        <h1>把一个 App 从想法做到上架</h1>
+        <p class="lead">
+          这份手册以「APP_NAME」为完整案例，沉淀从立项、资质、备案、物料准备，到开发、测试、踩坑、提审发布的全过程。
+          每页都分成「标准动作」「清单」和「可直接复制的提示词」，下次再做一个 App，可以照着走。
+        </p>
+      </div>
+      <div class="hero-note">
+        <span>本手册用法</span>
+        <strong>当 SOP 用</strong>
+        <p>清单状态保存在浏览器 localStorage，刷新不丢；完成后点「清空」即可归零。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>项目快照</h2>
+        <p>这份经验来自「APP_NAME」，做下一个 App 时把下面这些值替换成你的。</p>
+      </div>
+      <div class="grid cards-4">
+        <div class="card"><span class="card-label">产品</span><strong>APP_NAME</strong><p>倒班排班日历 + 工时统计</p></div>
+        <div class="card"><span class="card-label">平台</span><strong>HarmonyOS NEXT</strong><p>ArkTS / ArkUI · Stage 模型</p></div>
+        <div class="card"><span class="card-label">包名</span><strong>YOUR_BUNDLE_ID</strong><p>主体 YOUR_BRAND + 产品 APP_SLUG</p></div>
+        <div class="card"><span class="card-label">主体</span><strong>YOUR_COMPANY</strong><p>企业实名已完成</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>按阶段进入</h2>
+        <p>首页只做导航，具体内容都拆到独立页面。</p>
+      </div>
+      <div class="grid cards-3">
+        <a class="card card-link" href="01-product.html"><span class="num">01</span><h3>立项与产品定义</h3><p>目标用户、痛点、PRD、免费/Pro 边界、关键决策。</p></a>
+        <a class="card card-link" href="02-environment.html"><span class="num">02</span><h3>开发环境与工程</h3><p>DevEco、hvigor、devecocli、模拟器/真机、构建脚本。</p></a>
+        <a class="card card-link" href="03-design.html"><span class="num">03</span><h3>设计系统与动效</h3><p>视觉 token、深浅皮肤、图标体系、动效标准。</p></a>
+        <a class="card card-link" href="04-core-dev.html"><span class="num">04</span><h3>核心功能开发</h3><p>排班引擎、持久化、页面结构、备份恢复、隐私合规。</p></a>
+        <a class="card card-link" href="05-special.html"><span class="num">05</span><h3>卡片与提醒</h3><p>桌面万能卡片、系统日历提醒、实况窗取舍。</p></a>
+        <a class="card card-link" href="06-testing.html"><span class="num">06</span><h3>测试与调试</h3><p>Hypium 单测、hdc 截图、分层定位、验收节奏。</p></a>
+        <a class="card card-link" href="07-store.html"><span class="num">07</span><h3>上架素材与文案</h3><p>图标、截图、宣传图、应用介绍、分类与分级、隐私政策。</p></a>
+        <a class="card card-link" href="08-filing.html"><span class="num">08</span><h3>资质与备案</h3><p>企业主体、域名、ICP、App 备案、公安备案、签名与服务器。</p></a>
+        <a class="card card-link" href="09-pitfalls.html"><span class="num">09</span><h3>鸿蒙踩坑 19 条</h3><p>ArkUI、持久化、卡片、拖拽、提醒等真实问题与解法。</p></a>
+        <a class="card card-link" href="10-launch.html"><span class="num">10</span><h3>提审、发布与后续</h3><p>release 包、AGC 提审、更新日志、Pro 与真实反馈。</p></a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>建议阅读顺序</h2>
+        <p>不是线性的，很多事可以并行。第一次做，建议按下面顺序。</p>
+      </div>
+      <ol class="steps">
+        <li>先读 <a href="01-product.html">01 立项</a>，把定位和边界写死。</li>
+        <li>同时启动 <a href="08-filing.html">08 资质备案</a>，因为审核时间最长。</li>
+        <li>搭 <a href="02-environment.html">02 环境</a>，先跑通「编译 → 安装 → 启动」。</li>
+        <li>按 <a href="03-design.html">03 设计</a> 锁定视觉，再进 <a href="04-core-dev.html">04 开发</a>。</li>
+        <li>边开发边写 <a href="06-testing.html">06 测试</a>，核心逻辑必须可单测。</li>
+        <li>功能稳定后做 <a href="07-store.html">07 上架素材</a> 和 <a href="10-launch.html">10 发布</a>。</li>
+        <li>全程把 <a href="09-pitfalls.html">09 踩坑</a> 当字典，遇到再查。</li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>整体推进清单</h2>
+        <p>这是最高层的一页。每个子页面还有更细的清单。</p>
+      </div>
+      <div class="check-block">
+        <div class="check-head">
+          <span>从 0 到上架的主线</span>
+          <button class="ghost" data-clear-list="master">清空本清单</button>
+        </div>
+        <ul class="checklist" data-checklist="master">
+          <li><label><input type="checkbox" data-check="product"><span>产品定位、目标用户、核心价值已写进 PRD</span></label></li>
+          <li><label><input type="checkbox" data-check="company"><span>企业主体、域名、开发者账号准备完成</span></label></li>
+          <li><label><input type="checkbox" data-check="filing"><span>网站备案 / App 备案 / 公安备案已启动或完成</span></label></li>
+          <li><label><input type="checkbox" data-check="env"><span>开发环境跑通：编译 → 安装 → 启动 → 截图</span></label></li>
+          <li><label><input type="checkbox" data-check="design"><span>设计 token、图标、动效规范已锁定</span></label></li>
+          <li><label><input type="checkbox" data-check="core"><span>核心功能完成，核心逻辑有单测</span></label></li>
+          <li><label><input type="checkbox" data-check="special"><span>桌面卡片、提醒等平台特色能力完成并真机验收</span></label></li>
+          <li><label><input type="checkbox" data-check="assets"><span>图标、截图、宣传图、文案、隐私政策已准备</span></label></li>
+          <li><label><input type="checkbox" data-check="release"><span>发布证书、release 包、AGC 提审完成</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>APP_NAME App 制作经验手册 · 内容可继续按新项目替换主体、包名、路径和资质信息。</p>
+      <p>如果浏览器禁用本地存储，勾选状态不会保留；建议用 Edge/Chrome 打开 <code>index.html</code>。</p>
+    </footer>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>

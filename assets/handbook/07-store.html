@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>07 上架素材与文案 · APP_NAME App 制作经验手册</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html">APP_NAME App 制作经验手册</a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="01-product.html">立项</a>
+        <a href="02-environment.html">环境</a>
+        <a href="03-design.html">设计</a>
+        <a href="04-core-dev.html">开发</a>
+        <a href="05-special.html">卡片与提醒</a>
+        <a href="06-testing.html">测试</a>
+        <a href="07-store.html">上架素材</a>
+        <a href="08-filing.html">资质备案</a>
+        <a href="09-pitfalls.html">踩坑</a>
+        <a href="10-launch.html">发布</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <p class="breadcrumb"><a href="index.html">首页</a> / 07 上架素材与文案</p>
+    <section class="hero">
+      <div>
+        <p class="kicker">Stage 07 · Store Assets</p>
+        <h1>素材不是最后补，截图要按真实设备尺寸做</h1>
+        <p class="lead">
+          图标、截图、宣传图、应用介绍、分类分级、隐私政策六类物料，每类都有明确尺寸和口径。
+          APP_NAME用脚本整套生成，避免手搓造成尺寸、状态栏、数据不一致。
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>一、物料清单</h2>
+      </div>
+      <div class="check-block">
+        <div class="check-head">
+          <span>上架物料准备</span>
+          <button class="ghost" data-clear-list="store-assets">清空本清单</button>
+        </div>
+        <ul class="checklist" data-checklist="store-assets">
+          <li><label><input type="checkbox" data-check="icon-1024"><span>应用图标 1024×1024，方形满幅不带圆角</span></label></li>
+          <li><label><input type="checkbox" data-check="icon-512"><span>应用图标 512×512</span></label></li>
+          <li><label><input type="checkbox" data-check="icon-216"><span>应用图标 216×216，用于 AGC 上传</span></label></li>
+          <li><label><input type="checkbox" data-check="icon-144"><span>应用图标 144×144</span></label></li>
+          <li><label><input type="checkbox" data-check="icon-72"><span>应用图标 72×72</span></label></li>
+          <li><label><input type="checkbox" data-check="screenshots"><span>7 张应用截图，1260×2844，状态栏干净</span></label></li>
+          <li><label><input type="checkbox" data-check="promo"><span>8 张宣传图，1080×1920</span></label></li>
+          <li><label><input type="checkbox" data-check="copy"><span>应用名称、一句话简介、详情介绍、更新日志、关键词</span></label></li>
+          <li><label><input type="checkbox" data-check="category"><span>分类与年龄分级已定：工具 > 效率，3 周岁以上</span></label></li>
+          <li><label><input type="checkbox" data-check="privacy"><span>隐私政策三处一致：应用内 / 官网 / AGC 表单</span></label></li>
+          <li><label><input type="checkbox" data-check="icp"><span>备案号已填入 string.json 的 icp_number</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>二、素材规范</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>类型</th><th>尺寸 / 数量</th><th>注意事项</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>应用图标</td><td>1024/512/216/144/72</td><td>方形满幅，圆角交给应用市场裁</td></tr>
+            <tr><td>应用截图</td><td>7 张 1260×2844</td><td>状态栏重绘干净，时间统一 9:41</td></tr>
+            <tr><td>宣传图</td><td>8 张 1080×1920</td><td>前 7 张 = 截图 + 标题 + 卖点；第 8 张专题</td></tr>
+            <tr><td>详情文案</td><td>见上架文案</td><td>纯文本，不要带 Markdown 符号</td></tr>
+            <tr><td>隐私政策</td><td>三处一致</td><td>应用内、官网、AGC 表单填表链接</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>三、分类与年龄分级</h2>
+      </div>
+      <div class="banner green">
+        <strong>APP_NAME的结论</strong>
+        <p>分类：工具 > 效率。年龄分级：3 周岁以上 / 全年龄。AGC 内容分级问卷八项全部选“无 / 否”。</p>
+      </div>
+      <p class="note">分级属于应用信息，上架后随时可改，不需要重新打包；但每次改都要重新过审，且从高往低改会更细，尽量一次填准。</p>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>四、Vibe Coding 提示词</h2>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>1. 生成应用图标</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为 HarmonyOS App【APP_NAME】生成商店图标所需素材。
+主题：极简日历 + 三条班次色带。
+要求：
+1. 背景 background.png 和前景 foreground.png 分层
+2. 生成 1024/512/216/144/72 五档方形满幅 PNG，不带圆角
+3. 前景必须留出足够安全边距，避免被系统圆形/圆角裁切
+4. 同时说明如何同步到 AppScope 和 entry 两处资源目录
+5. 输出 Python/Pillow 脚本，而不是让我手动导出</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>2. 生成截图与宣传图脚本</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请写一个 Python/Pillow 脚本，把 App 截图批量加工成上架素材。
+输入：7 张原始截图，1280×2832
+输出：
+1. 7 张商店截图，裁边缩放到 1260×2844
+2. 重绘状态栏：去掉通知图标，时间统一 9:41，深浅背景匹配
+3. 7 张宣传图，1080×1920：手机框 + 主标题 + 副标题 + 三个卖点标签
+要求：
+- 状态栏右侧画信号、wifi、电量
+- 截图底部裁掉手势条留白，但不要碰到 tabbar 文字
+- 手机框圆角、阴影、前置摄像头小药丸都做出来
+- 所有坐标参数集中可改</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>3. 写应用市场文案</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为【APP_NAME】写应用市场文案，用于华为 AGC。
+产品：倒班排班日历 + 工时统计，HarmonyOS NEXT 原生，无广告，数据本地存储。
+请输出：
+1. 应用名称
+2. 三句一句话简介（一句推荐，两句备选）
+3. 应用详情介绍，按段落，纯文本，适合手机阅读
+4. v1.0.0 更新说明
+5. 搜索关键词
+6. 建议分类与年龄分级
+要求：不写“优化了用户体验”这种空话；卖点必须具体。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>4. 生成隐私政策</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为【APP_NAME】写一份隐私政策，用于应用内原生页面和华为 AGC。
+关键事实：
+- 不注册账号，不收集、不上传任何个人信息
+- 排班数据只保存在本机应用沙箱
+- 应用不联网、无服务端、无第三方 SDK、无广告
+- 只申请振动、日历读写权限
+- 开启班次提醒后，把排班写入系统日历的“APP_NAME排班”本地账户
+- 主体：YOUR_COMPANY，邮箱 YOUR_CONTACT_EMAIL
+请包含：我们不收集的信息、仅本机保存的数据、不联网说明、权限说明、存储安全、未成年人、你的权利、政策更新、联系方式。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>5. 隐私政策在 AGC 表单的填写口径</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请把上面的APP_NAME隐私政策，转换成华为 AGC「生成协议工具」的逐项填写建议。
+要求：
+1. 明确哪些项不勾选、哪些项整段替换
+2. 设备权限调用填振动、日历两项
+3. 检查清单：全文不能出现网络请求、CDN、位置、通讯录、设备标识、第三方 SDK
+4. 最终口径与应用内 Privacy.ets、官网 privacy.html 一致</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><a href="index.html">返回首页</a> · 上一阶段：<a href="06-testing.html">06 测试</a> · 下一阶段：<a href="08-filing.html">08 资质与备案</a></p>
+    </footer>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>

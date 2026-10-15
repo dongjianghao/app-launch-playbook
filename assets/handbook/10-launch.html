@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>10 提审、发布与后续 · APP_NAME App 制作经验手册</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html">APP_NAME App 制作经验手册</a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="01-product.html">立项</a>
+        <a href="02-environment.html">环境</a>
+        <a href="03-design.html">设计</a>
+        <a href="04-core-dev.html">开发</a>
+        <a href="05-special.html">卡片与提醒</a>
+        <a href="06-testing.html">测试</a>
+        <a href="07-store.html">上架素材</a>
+        <a href="08-filing.html">资质备案</a>
+        <a href="09-pitfalls.html">踩坑</a>
+        <a href="10-launch.html">发布</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <p class="breadcrumb"><a href="index.html">首页</a> / 10 提审、发布与后续</p>
+    <section class="hero">
+      <div>
+        <p class="kicker">Stage 10 · Release</p>
+        <h1>把正式包提上去，然后开始下一轮迭代</h1>
+        <p class="lead">
+          发布不是终点。APP_NAME的经验是：先把免费版完整、干净地推上架，再做 Pro；每次更新日志写具体事实，不写空话。
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>一、发布流程</h2>
+      </div>
+      <ol class="steps">
+        <li>完成企业资质、发布证书、发布 Profile。</li>
+        <li>运行 build-release.ps1，得到 release-signed.app。</li>
+        <li>把正式包上传 AGC，创建版本。</li>
+        <li>填写应用信息：名称、简介、分类、年龄分级、隐私政策。</li>
+        <li>上传图标、截图、宣传图。</li>
+        <li>填入 App 备案号等合规信息。</li>
+        <li>提交审核，按驳回意见修改。</li>
+        <li>发布后同步更新官网下载链接。</li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>二、版本与更新</h2>
+      </div>
+      <div class="grid cards-2">
+        <div class="card">
+          <h3>版本号格式</h3>
+          <p>APP_NAME v1.0.0 / versionCode 1000000。上架前确认递增规则。</p>
+        </div>
+        <div class="card">
+          <h3>更新日志</h3>
+          <p>一句一条具体事实，例如“修复切换月份后月份标题偶尔不更新”，不写“优化体验”。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>三、上线后要做的</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>事项</th><th>说明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>官网下载链接</td><td>把“即将上架”替换成应用市场真实链接</td></tr>
+            <tr><td>HTTPS</td><td>备案通过后 certbot --nginx 配置域名证书</td></tr>
+            <tr><td>提醒复验</td><td>换正式签名后验证班次提醒是否可用</td></tr>
+            <tr><td>Pro</td><td>上线后做买断制 Pro：加班费估算 + 导出分享</td></tr>
+            <tr><td>真实反馈</td><td>观察用户反馈，再决定是否需要共享类 / 团队能力</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>四、发布清单</h2>
+      </div>
+      <div class="check-block">
+        <div class="check-head">
+          <span>发布前最终确认</span>
+          <button class="ghost" data-clear-list="launch">清空本清单</button>
+        </div>
+        <ul class="checklist" data-checklist="launch">
+          <li><label><input type="checkbox" data-check="release"><span>release 正式包已构建并安装验证</span></label></li>
+          <li><label><input type="checkbox" data-check="assets"><span>图标、截图、宣传图、文案已上传</span></label></li>
+          <li><label><input type="checkbox" data-check="privacy"><span>隐私政策三处一致，无占位内容</span></label></li>
+          <li><label><input type="checkbox" data-check="icp"><span>备案号已填进 App 与官网</span></label></li>
+          <li><label><input type="checkbox" data-check="category"><span>分类、年龄分级、内容分级问卷已填</span></label></li>
+          <li><label><input type="checkbox" data-check="contact"><span>联系方式、主体、邮箱已核对</span></label></li>
+          <li><label><input type="checkbox" data-check="site"><span>官网可访问，下载链接已更新</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>五、Vibe Coding 提示词</h2>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>1. 写版本更新说明</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为APP_NAME v1.0.0 写华为应用市场的版本更新说明。
+要求：一条一个具体事实，不写“优化了用户体验”。
+本版包含：循环班表、手动改班、节假日标注、工时统计、桌面卡片、深色皮肤、备份与恢复。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>2. 生成发布后待办</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为APP_NAME生成一份“应用发布后待办清单”。
+背景：免费版 v1 已准备好，网站备案和 App 备案在审核中，官网已部署，提醒走系统日历。
+请区分：
+1. 等备案下号后必须做的
+2. 上架后可做的优化
+3. 下一版 Pro 的范围
+4. 需要真机复验的风险点</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>3. 规划 Pro 版本</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为APP_NAME规划买断制 Pro，输出实施方案。
+产品背景：免费版已完整，不做订阅，不做服务端。
+Pro 功能：加班费与补贴估算、排班长图导出、导出系统日历 .ics、年度工时报表。
+请包含：
+1. 免费/Pro 边界
+2. 收入设置的数据模型
+3. 应用内购买技术路径
+4. 卸载重装后如何恢复买断权益
+5. 开发时的解锁机制
+6. 隐私政策需要补的内容</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><a href="index.html">返回首页</a> · 上一阶段：<a href="09-pitfalls.html">09 鸿蒙踩坑</a></p>
+    </footer>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>

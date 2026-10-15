@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>09 鸿蒙踩坑 19 条 · APP_NAME App 制作经验手册</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html">APP_NAME App 制作经验手册</a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="01-product.html">立项</a>
+        <a href="02-environment.html">环境</a>
+        <a href="03-design.html">设计</a>
+        <a href="04-core-dev.html">开发</a>
+        <a href="05-special.html">卡片与提醒</a>
+        <a href="06-testing.html">测试</a>
+        <a href="07-store.html">上架素材</a>
+        <a href="08-filing.html">资质备案</a>
+        <a href="09-pitfalls.html">踩坑</a>
+        <a href="10-launch.html">发布</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <p class="breadcrumb"><a href="index.html">首页</a> / 09 鸿蒙踩坑 19 条</p>
+    <section class="hero">
+      <div>
+        <p class="kicker">Stage 09 · Pitfalls</p>
+        <h1>踩过的坑，按“现象 → 原因 → 解法”存档</h1>
+        <p class="lead">
+          这些坑大多不是 API 不会用，而是平台机制和直觉不一致。建议开发前快速读一遍，开发中遇到再展开查。
+          第 15、16 条来自实况窗，虽然 v1 已移除，但作为 Live View Kit 平台知识保留。
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>ArkUI 渲染与组件</h2>
+      </div>
+
+      <details>
+        <summary>1. ArkUI 局部更新：模块级可变数据不会触发刷新</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>手动标记后角标不出现，重启才正确。</p>
+          <p><span class="tag">原因</span>ArkUI 只重算表达式读过的可观察状态；普通 Map 变化框架看不见。</p>
+          <p><span class="tag green">解法</span>加 @State 版本号，变化时 +1；让取数方法先读它。UI 直接读模块级可变数据是反模式。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>2. LazyForEach 不会因为 @State 变化重建已有子节点</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>月历切换班次类型后，已渲染格子不更新。</p>
+          <p><span class="tag">原因</span>LazyForEach 缓存已生成子节点。</p>
+          <p><span class="tag green">解法</span>给数据源加 notifyReload()，配置变化时显式通知。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>3. Grid 的拖拽回调在该 SDK 版本下不触发</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>三列拖拽排序，点击正常，onItemDragStart 不进。</p>
+          <p><span class="tag">原因</span>SDK 版本下 Grid 拖拽回调未触发。</p>
+          <p><span class="tag green">解法</span>改用 List + .lanes(3, 10)。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>4. 多列 List 的 onItemDragMove 给的 index 不可靠</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>拖拽目标位置错位。</p>
+          <p><span class="tag">原因</span>跨列时会返回非整数坐标。</p>
+          <p><span class="tag green">解法</span>自己用指针坐标除以单元尺寸求行列。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>5. parallelGesture(LongPressGesture) 会抢走长按拖拽</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>加长按震动后拖拽失效。</p>
+          <p><span class="tag">原因</span>手势和拖拽竞争。</p>
+          <p><span class="tag green">解法</span>在 onTouch 里自起 460ms 定时器触发震动，抬起或移动超阈值取消；震动改 15ms。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>6. @Builder 传基本类型参数不会刷新</summary>
+        <div class="details-body">
+          <p><span class="tag green">解法</span>内联展开，或让 builder 读组件 @State，不接基本类型参数。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>7. outline 与 .animation() 的顺序会影响圆角</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>描边元素从无到有时圆角从 0 动画到 14。</p>
+          <p><span class="tag green">解法</span>outline 必须写在 .animation() 之后。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>8. Image 默认参与系统拖拽，长按图标触发小艺</summary>
+        <div class="details-body">
+          <p><span class="tag green">解法</span>所有装饰性图标统一加 .enableAnalyzer(false).draggable(false)。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>9. 固定宽高 + padding 是“内减”的</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>16×16 图标加左右各 10 padding 被压没。</p>
+          <p><span class="tag green">解法</span>扩大热区要把整体尺寸一起加大，例如 width(34).height(34).padding(9)。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>卡片 / 实况窗</h2>
+      </div>
+
+      <details>
+        <summary>10. 卡片跟随系统深浅色，就不能自己算颜色传给它</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>深色系统下卡片仍白。</p>
+          <p><span class="tag">原因</span>卡片颜色由数据覆盖了框架自动适配。</p>
+          <p><span class="tag green">解法</span>中性色用 resources/base 与 resources/dark 两套资源；只把用户自定义班次颜色走数据。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>11. 2×2 卡片比想象中窄得多</summary>
+        <div class="details-body">
+          <p><span class="tag green">解法</span>2×2 实际只有 130~160vp 宽，两种尺寸各写一套布局，长文本 maxLines(1) + 省略。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>12. 调试签名拿不到通知配额</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>发布提醒报 1700002，一条都发不出去。</p>
+          <p><span class="tag green">解法</span>代码和参数验证正确，换正式签名后再实测。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>13. 重新安装 HAP 会回收桌面卡片</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>开发期每次装包，桌面卡片消失。</p>
+          <p><span class="tag green">解法</span>开发期正常，重新添加；应用内提供“添加桌面卡片”入口。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>15. 实况窗换图标，胶囊里还是旧图</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>文案刷新、图标不变。</p>
+          <p><span class="tag">原因</span>系统按资源缓存图片，已创建实况窗不会重新读盘。</p>
+          <p><span class="tag green">解法</span>换图标要重建实况窗；图标按圆形裁切设计。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>16. primary.content 富文本数组会直接拼接</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>两段文本显示成“08:00 - 20:0040%”。</p>
+          <p><span class="tag green">解法</span>分隔符自己写进文本；RichText 的 textColor 在所有对象中必须一致。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>持久化与提醒</h2>
+      </div>
+
+      <details>
+        <summary>14. 没注册过的 PersistentStorage 键，冷启动后为空</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>改成规则列表后，冷启动把已有规则清空。</p>
+          <p><span class="tag">原因</span>新键没 persistProp 注册，读到 undefined 误判首次运行。</p>
+          <p><span class="tag green">解法</span>读取函数第一件事注册所有相关键，再判断。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>17. 这个项目“落盘”只认 preferences</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>用 AppStorage.setOrCreate 保存设置，重启回到默认。</p>
+          <p><span class="tag green">解法</span>新增任何“要记住”的设置，先问它到底写进 preferences 没有；load/save 成对。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>18. PersistentStorage 镜像不可靠：进程被杀后为空，启动流程覆盖磁盘</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>冷启动后用户排班全部消失。</p>
+          <p><span class="tag">原因</span>镜像写盘延迟，强杀丢镜像；启动把空镜像写回 preferences。</p>
+          <p><span class="tag green">解法</span>启动时 hydrateMirrorFromDisk，镜像空但磁盘有数据时用磁盘补镜像，绝不写磁盘；手动标记也补 preferences 副本。</p>
+        </div>
+      </details>
+
+      <details>
+        <summary>19. 日历提醒会被“日历应用的通知权限”拦掉</summary>
+        <div class="details-body">
+          <p><span class="tag red">现象</span>日志已触发，但显示 Not allow to notify[com.huawei.hmos.calendar]。</p>
+          <p><span class="tag">原因</span>提醒由日历应用发通知，日历通知被关则静默失败。</p>
+          <p><span class="tag green">解法</span>UI 提示“需开启日历的通知权限”；以后可申请代理提醒由APP_NAME自己发。</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>复盘清单</h2>
+      </div>
+      <div class="check-block">
+        <div class="check-head">
+          <span>开发前防坑确认</span>
+          <button class="ghost" data-clear-list="pitfall-check">清空本清单</button>
+        </div>
+        <ul class="checklist" data-checklist="pitfall-check">
+          <li><label><input type="checkbox" data-check="observable"><span>UI 不读模块级可变数据，全走 @State / @StorageLink</span></label></li>
+          <li><label><input type="checkbox" data-check="persist"><span>PersistentStorage 键读写前先 persistProp</span></label></li>
+          <li><label><input type="checkbox" data-check="preferences"><span>所有设置都在 preferences 有真实副本</span></label></li>
+          <li><label><input type="checkbox" data-check="list"><span>多列网格用 List + .lanes，不用 Grid</span></label></li>
+          <li><label><input type="checkbox" data-check="image"><span>装饰图标加了 enableAnalyzer(false).draggable(false)</span></label></li>
+          <li><label><input type="checkbox" data-check="widget"><span>2×2 卡片按真实宽度单独设计</span></label></li>
+          <li><label><input type="checkbox" data-check="calendar"><span>提醒 UI 已提示日历通知权限风险</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>Vibe Coding 提示词</h2>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><strong>让 AI 按“现象 → 原因 → 解法”写踩坑记录</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请根据以下事实，写一份技术踩坑记录。每条都按“现象 → 原因 → 解法”写，不要只给结论。
+背景：HarmonyOS NEXT ArkTS/ArkUI，PersistentStorage 与 preferences 同时使用，桌面卡片跟随系统深浅色。
+请至少覆盖：
+1. 模块级可变数据不触发 ArkUI 刷新
+2. LazyForEach 缓存子节点
+3. 多列拖拽 index 不可靠
+4. PersistentStorage 键未注册导致冷启动丢数据
+5. 进程强杀后镜像为空覆盖磁盘
+6. 日历提醒被日历通知权限拦截
+输出格式适合放进项目技术说明文档。</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><a href="index.html">返回首页</a> · 上一阶段：<a href="08-filing.html">08 资质备案</a> · 下一阶段：<a href="10-launch.html">10 发布</a></p>
+    </footer>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>

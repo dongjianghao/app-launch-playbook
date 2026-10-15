@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>02 开发环境与工程 · APP_NAME App 制作经验手册</title>
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="brand" href="index.html">APP_NAME App 制作经验手册</a>
+      <nav class="nav">
+        <a href="index.html">首页</a>
+        <a href="01-product.html">立项</a>
+        <a href="02-environment.html">环境</a>
+        <a href="03-design.html">设计</a>
+        <a href="04-core-dev.html">开发</a>
+        <a href="05-special.html">卡片与提醒</a>
+        <a href="06-testing.html">测试</a>
+        <a href="07-store.html">上架素材</a>
+        <a href="08-filing.html">资质备案</a>
+        <a href="09-pitfalls.html">踩坑</a>
+        <a href="10-launch.html">发布</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <p class="breadcrumb"><a href="index.html">首页</a> / 02 开发环境与工程</p>
+    <section class="hero">
+      <div>
+        <p class="kicker">Stage 02 · Environment</p>
+        <h1>先把“编译 → 安装 → 启动”跑通</h1>
+        <p class="lead">
+          鸿蒙开发没有热重载，改一次就要重新 build、签名、装包。真正省时间的方式，是把这些步骤脚本化，
+          再让日常调试固定在模拟器上。
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>一、工具链</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>工具</th><th>APP_NAME使用的版本 / 路径</th><th>作用</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>DevEco Studio</td><td>26.0.0，C:\Program Files\Huawei\DevEco Studio</td><td>鸿蒙 IDE，签名配置、工程管理</td></tr>
+            <tr><td>hvigor</td><td>随 DevEco 提供</td><td>编译主包 / 测试 HAP</td></tr>
+            <tr><td>hdc</td><td>sdk\default\openharmony\toolchains\hdc.exe</td><td>设备连接、安装、启动、截图、模拟点击</td></tr>
+            <tr><td>devecocli</td><td>@deveco/deveco-cli v1.3.5</td><td>封装 DevEco 工具链，替代手写 hvigor 路径</td></tr>
+            <tr><td>PowerShell</td><td>系统自带</td><td>一键脚本：构建、安装、测试、发布</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>二、关键环境变量</h2>
+        <p>每个新 shell 都要设置。建议写进脚本，不要手动反复敲。</p>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><strong>PowerShell 环境变量</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>$env:DEVECO_SDK_HOME='C:\Program Files\Huawei\DevEco Studio\sdk'
+$env:JAVA_HOME='C:\Program Files\Huawei\DevEco Studio\jbr'
+$env:PATH="C:\Program Files\Huawei\DevEco Studio\jbr\bin;C:\Program Files\Huawei\DevEco Studio\tools\node;$env:PATH"</pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>三、设备策略</h2>
+      </div>
+      <div class="grid cards-2">
+        <div class="card">
+          <h3>模拟器：日常开发默认用</h3>
+          <p>APP_NAME固定使用 127.0.0.1:5555，Mate 90 Pro / HarmonyOS 7.0.0 / API 26，1280×2832。端口稳定，数据独立，可以随便清库造数据。</p>
+        </div>
+        <div class="card">
+          <h3>真机：只做最终验收</h3>
+          <p>安全区、震动、拖拽手感、桌面卡片、通知、小艺手势这些只能在真机判断。无线调试会掉线，先 hdc list targets，必要时 tconn。</p>
+        </div>
+      </div>
+      <div class="banner amber">
+        <strong>重要习惯</strong>
+        <p>编译通过 ≠ 能跑；能跑 ≠ 体验对。安全区、震动、卡片、拖拽这些必须回真机验收。</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>四、常用命令</h2>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><strong>日常编译、安装、启动</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>cd YOUR_PROJECT_DIR\PROJECT_NAME
+node 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.js' --mode module -p product=default -p module=entry@default assembleHap --no-daemon
+
+$hdc='C:\Program Files\Huawei\DevEco Studio\sdk\default\openharmony\toolchains\hdc.exe'
+& $hdc -t 127.0.0.1:5555 install -r 'YOUR_PROJECT_DIR\PROJECT_NAME\entry\build\default\outputs\default\entry-default-signed.hap'
+& $hdc -t 127.0.0.1:5555 shell "aa start -a EntryAbility -b YOUR_BUNDLE_ID"</pre>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><strong>截图与模拟点击</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre># 截图
+& $hdc -t 127.0.0.1:5555 shell "snapshot_display -f /data/local/tmp/a.jpeg"
+& $hdc -t 127.0.0.1:5555 file recv /data/local/tmp/a.jpeg C:\path\to\a.jpeg
+
+# 点击 / 滑动
+& $hdc -t 127.0.0.1:5555 shell "uinput -T -c X Y"
+& $hdc -t 127.0.0.1:5555 shell "uinput -T -m X1 Y1 X2 Y2"
+
+# 按住不放，用于验证按下态
+& $hdc -t 127.0.0.1:5555 shell "uinput -T -d X Y"
+& $hdc -t 127.0.0.1:5555 shell "uinput -T -u X Y"</pre>
+      </div>
+      <div class="prompt">
+        <div class="prompt-head"><strong>推荐封装脚本</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>pwsh -File YOUR_PROJECT_DIR\tools\build-install.ps1
+pwsh -File YOUR_PROJECT_DIR\run-tests.ps1
+pwsh -File YOUR_PROJECT_DIR\tools\build-release.ps1</pre>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>五、环境准备清单</h2>
+      </div>
+      <div class="check-block">
+        <div class="check-head">
+          <span>开发环境</span>
+          <button class="ghost" data-clear-list="env-setup">清空本清单</button>
+        </div>
+        <ul class="checklist" data-checklist="env-setup">
+          <li><label><input type="checkbox" data-check="deveco"><span>DevEco Studio 已安装并可打开工程</span></label></li>
+          <li><label><input type="checkbox" data-check="path"><span>工程路径足够短，避免 Windows 长路径问题</span></label></li>
+          <li><label><input type="checkbox" data-check="env"><span>DEVECO_SDK_HOME / JAVA_HOME / PATH 已写入脚本</span></label></li>
+          <li><label><input type="checkbox" data-check="build"><span>主包能编译成功</span></label></li>
+          <li><label><input type="checkbox" data-check="install"><span>能安装到模拟器并启动</span></label></li>
+          <li><label><input type="checkbox" data-check="screenshot"><span>能用 hdc 截图并取回本地</span></label></li>
+          <li><label><input type="checkbox" data-check="release"><span>release 签名配置可用，能出正式 .app</span></label></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <h2>六、Vibe Coding 提示词</h2>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>1. 生成一键构建脚本</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为 HarmonyOS NEXT 工程写一个 PowerShell 脚本，名字叫 build-install.ps1。
+要求：
+1. 参数：-Device 默认 127.0.0.1:5555，-SkipBuild，-NoStart
+2. 自动设置 DEVECO_SDK_HOME、JAVA_HOME、PATH
+3. 用 hvigorw.js 编译 entry 模块主包
+4. 判断 BUILD FAILED 或产物不存在时打印错误并退出码 1
+5. 用 hdc 安装 -r
+6. 安装成功后 aa start 启动
+7. 所有关键步骤打印“ok”
+工程路径 YOUR_PROJECT_DIR\PROJECT_NAME，bundle YOUR_BUNDLE_ID，DevEco 路径 C:\Program Files\Huawei\DevEco Studio。</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>2. 生成单元测试脚本</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>请为 HarmonyOS 的 Hypium 测试写一个 PowerShell 一键脚本 run-tests.ps1。
+要求：
+1. 编译 entry@ohosTest 的测试 HAP
+2. 安装到 -Device 指定的设备
+3. 用 aa test -b YOUR_BUNDLE_ID -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 120000 运行
+4. 从输出解析 OHOS_REPORT_RESULT 里的 Tests run / Failure / Error / Pass
+5. 有失败时打印失败用例，并返回退出码 1；全部通过返回 0
+6. 支持 -Class 只跑某一组用例</pre>
+      </div>
+
+      <div class="prompt">
+        <div class="prompt-head"><strong>3. 解释 devecocli 与 hvigor 的取舍</strong><button class="copy-btn" data-copy>复制</button></div>
+        <pre>我在 DevEco Studio 之外用命令行开发 HarmonyOS NEXT。
+请说明 devecocli 和直接调用 hvigorw.js 的区别，并给出使用建议。
+已知：本机 DevEco Studio 26.0.0，Node 24。
+我想知道：
+1. devecocli 是否适合日常 build/run/log/device list/docs search
+2. 哪些场景仍应保留 hvigor 命令
+3. 安装 devecocli 时可能遇到的问题和注意事项
+4. 有没有截图命令；如果没有，截图应该用什么</pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><a href="index.html">返回首页</a> · 上一阶段：<a href="01-product.html">01 立项</a> · 下一阶段：<a href="03-design.html">03 设计系统</a></p>
+    </footer>
+  </main>
+  <script src="assets/app.js"></script>
+</body>
+</html>
